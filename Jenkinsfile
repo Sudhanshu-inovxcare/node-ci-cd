@@ -24,6 +24,24 @@ pipeline{
                 sh 'npm test'
             }
         }
+        stage('SonarQube Analysis'){
+            steps{
+                withSonarQubeEnv('SonarQube'){
+                    sh '''
+                    sonar-scanner \
+                    -Dsonar.projectKey=node-ci-cd \
+                    -Dsonar.sources=src
+                    '''
+                }
+            }
+        }
+        stage('Quality Gate'){
+            steps {
+                timeout(time:5,unit:'MINUTES'){
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
         stage('Docker Login') {
             steps{
                 withCredentials([
