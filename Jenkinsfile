@@ -3,6 +3,9 @@ pipeline{
     tools {
         nodejs 'Node22'
     }
+    environment {
+        IMAGE_NAME= "node-ci-cd"
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -19,10 +22,15 @@ pipeline{
                 sh 'npm test'
             }
         }
+        stage('Docker Build') {
+            steps{
+                sh 'docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+            }
+        }
     }
     post {
         success {
-            echo "Pipeline Succeeded!"
+            echo "Docker Image built successfully!"
         }
         failure {
             echo "Pipeline Failed!"
