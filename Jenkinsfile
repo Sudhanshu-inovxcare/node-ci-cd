@@ -64,6 +64,13 @@ pipeline{
         stage('Deploy') {
             steps{
                 sh '''
+                echo "Removing old Containers!"
+                docker stop node-app || true &&
+                docker rm node-app || true
+                '''
+            }
+            {
+                sh '''
                 docker run -d \
                 --name node-app \
                 -p 3000:3000 \
@@ -80,13 +87,7 @@ pipeline{
             }
         }
         stage('Cleanup') {
-            steps{
-                sh '''
-                echo "Removing old Containers!"
-                docker stop node-app || true &&
-                docker rm node-app || true
-                '''
-            }
+            steps
             {
                 sh '''
                 PREVIOUS=$((BUILD_NUMBER - 2))
