@@ -1,3 +1,4 @@
+#!/usr/bin/env groovy
 pipeline{
     agent any
     tools {
@@ -25,6 +26,24 @@ pipeline{
         stage('Docker Build') {
             steps{
                 sh 'docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+            }
+        }
+        stage('Removing old container') {
+            steps{
+                sh '''
+                docker stop node-app || true &&
+                docker rm node-app || true
+                '''
+            }
+        }
+        stage('Deploy') {
+            steps{
+                sh '''
+                docker run -d \ß
+                ---name node-app \
+                -p 3000:3000 \
+                ${IMAGE_NAME}:${BUILD_NUMBER}
+                '''
             }
         }
     }
