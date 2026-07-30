@@ -39,7 +39,7 @@ pipeline{
         stage('Deploy') {
             steps{
                 sh '''
-                docker run -d \ß
+                docker run -d \
                 ---name node-app \
                 -p 3000:3000 \
                 ${IMAGE_NAME}:${BUILD_NUMBER}
