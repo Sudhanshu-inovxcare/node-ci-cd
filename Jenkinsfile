@@ -40,7 +40,7 @@ pipeline{
             steps{
                 sh '''
                 docker run -d \
-                ---name node-app \
+                --name node-app \
                 -p 3000:3000 \
                 ${IMAGE_NAME}:${BUILD_NUMBER}
                 '''
