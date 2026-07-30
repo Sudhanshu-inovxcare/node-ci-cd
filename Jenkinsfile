@@ -64,19 +64,20 @@ pipeline{
         stage('Deploy') {
             steps{
                 sh '''
-                echo "Removing old Containers!"
-                docker stop node-app || true &&
-                docker rm node-app || true
+                    echo "Removing old containers..."
+
+                    docker stop node-app || true
+                    docker rm node-app || true
+
+                    echo "Starting new container..."
+
+                    docker run -d \
+                        --name node-app \
+                        -p 3000:3000 \
+                        ${IMAGE_NAME}:${BUILD_NUMBER}
                 '''
             }
-            {
-                sh '''
-                docker run -d \
-                --name node-app \
-                -p 3000:3000 \
-                ${IMAGE_NAME}:${BUILD_NUMBER}
-                '''
-            }
+            
         }
         stage('Health Check') {
             steps{
