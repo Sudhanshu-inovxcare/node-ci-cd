@@ -5,7 +5,7 @@ pipeline{
         nodejs 'Node22'
     }
     environment {
-    DOCKER_USER = "your-dockerhub-username"
+    DOCKER_USER = "sudhanshu20021997"
     IMAGE_NAME = "${DOCKER_USER}/node-ci-cd"
 }
     stages {
