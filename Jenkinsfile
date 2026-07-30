@@ -5,7 +5,7 @@ pipeline{
         nodejs 'Node22'
     }
     environment {
-        IMAGE_NAME= "node-ci-cd"
+        IMAGE_NAME= "sudhanshu20021997node-ci-cd"
     }
     stages {
         stage('Checkout') {
@@ -23,16 +23,38 @@ pipeline{
                 sh 'npm test'
             }
         }
-        stage('Docker Build') {
+        stage('Docker Login') {
             steps{
-                sh 'docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+                withCredentials([
+                    credentialsId:'dockerhub',
+                    usernameVariable:'DOCKER_USER'
+                    passwordVariable:'DOCKER_PASS'
+                ])
+                {
+                    sh '''
+                    echo "$DOCKER_USER" | \
+                    docker login \
+                    -u "$DOCKER_USER" \
+                    --password-stdin
+                    '''
+                }
             }
         }
-        stage('Removing old container') {
+        stage('Build Image') {
             steps{
                 sh '''
-                docker stop node-app || true &&
-                docker rm node-app || true
+                docker build \
+                -t ${IMAGE_NAME}:${BUILD_NUMBER} \
+                -t ${IMAGE_NAME}:latest \
+                .
+                '''
+            }
+        }
+        stage('Push Image'){
+            steps{
+                sh '''
+                docker push ${IMAGE_NAME}:${BUILD_NUMBER}
+                docker push ${IMAGE_NAME}:latest
                 '''
             }
         }
@@ -51,6 +73,22 @@ pipeline{
                 sh '''
                 sleep 10
                 curl http://localhost:3000/health
+                '''
+            }
+        }
+        stage('Cleanup') {
+            steps{
+                sh '''
+                echo "Removing old Containers!"
+                docker stop node-app || true &&
+                docker rm node-app || true
+                '''
+            }
+            {
+                sh '''
+                PREVIOUS=$((BUILD_NUMBER - 2))
+                echo "Removing node-ci-cd:$PREVIOUS Image"
+                docker rmi node-ci-cd:${PREVIOUS} || true
                 '''
             }
         }
