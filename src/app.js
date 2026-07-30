@@ -6,7 +6,7 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
     res.json({
-        message: "Learning of basic CI-CD pipeline"
+        message: "Learning CI-CD pipeline"
     });
 });
 
