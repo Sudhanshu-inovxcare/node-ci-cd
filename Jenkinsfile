@@ -42,6 +42,15 @@ pipeline{
                 }
             }
         }
+         stage('Trivy file system scan'){
+            steps{
+                sh '''
+                    trivy fs \
+                    --severity HIGH,CRITICAL \
+                    .
+                '''
+            }
+        }
         stage('Docker Login') {
             steps{
                 withCredentials([
@@ -69,6 +78,22 @@ pipeline{
                 -t ${IMAGE_NAME}:latest \
                 .
                 '''
+            }
+        }
+        stage('Trivy Image Scan'){
+            steps{
+                sh '''
+                    trivy image \
+                    --format table \
+                    --output trivy-report.txt \
+                    --severity HIGH,CRITICAL \
+                    ${IMAGE_NAME}:${BUILD_NUMBER}
+                '''
+            }
+        }
+        stage('Publish Report') {
+            steps {
+                archiveArtifacts artifacts: 'trivy-report.txt'
             }
         }
         stage('Push Image'){
